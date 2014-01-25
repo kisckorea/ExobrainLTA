@@ -20,7 +20,7 @@ results = sparql.query().convert()
 sparql.setQuery("""         
             SELECT DISTINCT ?o 
             FROM  <http://ko.dbpedia.org> 
-            WHERE { <http://ko.dbpedia.org/resource/종파> <http://dbpedia.org/ontology/abstract> ?o.  FILTER(langMatches(lang(?o), "ko")) }
+            WHERE { <http://ko.dbpedia.org/resource/훈민정음> <http://dbpedia.org/ontology/abstract> ?o.  FILTER(langMatches(lang(?o), "ko")) }
 """)
 
 sparql.setReturnFormat(JSON)
@@ -29,7 +29,7 @@ results2 = sparql.query().convert()
 sparql.setQuery("""
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     SELECT ?label
-    WHERE { <http://ko.dbpedia.org/resource/종파> rdfs:label ?label }
+    WHERE { <http://ko.dbpedia.org/resource/훈민정음> rdfs:label ?label }
 """)
 sparql.setReturnFormat(JSON)
 results3 = sparql.query().convert()
