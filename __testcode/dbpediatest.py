@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
-
+'''
+dbpedia test code
+'''
 from SPARQLWrapper import SPARQLWrapper, JSON
 
 type("훈민정음")
