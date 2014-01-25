@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="utf-8">
+		<head>
+		<meta charset="utf-8">
+		<title>Exobrain LTA</title>
+		<link href="../static/css/bootstrap.css" rel="stylesheet">
+		<link href="../static/css/ExobrainLTA.css" rel="stylesheet">
+		<link href="../static/css/bootstrap-responsive.css" rel="stylesheet">
+	</head>
+	</head>
+	<body>
+		<div class="navbar navbar-inverse navbar-fixed-top">
+			<div class="navbar-inner">
+				<div class="container">
+					<a class="btn btn-navbar" data-toggle="collapse" data-target="#navMenu"> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </a>
+					<a class="brand" href="#">TimeLine Service</a>
+					<div class="nav-collapse" id="navMenu">
+						<ul class="nav center">
+							<li>
+								<a href="task.html">Task</a>
+							</li>
+							<li>
+								<a href="validation.html">Validation</a>
+							</li>
+							<li>
+								<a href="timeline.html">Timeline</a>
+							</li>
+							<li  class="active">
+								<a href="#">Profile</a>
+							</li>
+							<li>
+								<a href="account.html">Account</a>
+							</li>
+						</ul>
+						<div class="btn-group pull-right">
+							<a class="btn" id="adminBtn"> <i class="icon-pencil"></i>Admin <span class="caret"></span> </a>
+							<a class="btn" id="logoutBtn"> <i class="icon-user"></i>Logout <span class="caret"></span> </a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div><!--End of NavBar!-->		
+		<!-- Start Profile-->
+		<div class="container bg"><!-- Start of Container -->
+			<div class="row-fluid "><!--Start of Row-->
+				<div class="span4"><!-- Start of Span4 -->
+					<div class="well sidebar-nav"><!-- Start of Sidebar -->
+						<a href="#" id="profile" class="thumbnail">
+							<img src="http://bit.ly/QyPwPM">
+						</a>
+						<hr>
+						<div>
+							<i class="icon-home"></i> 123, Samsung-dong <br>
+							<i class="icon-map-marker"></i> Gangnam-gu <br>
+							<i class="icon-globe"></i> Seoul<br>
+						</div>							
+						<hr>
+						<ul class="nav nav-list">
+							<li class="active"><a href="#">
+								<i class="icon-white icon-envelope"></i>
+								Contact Information</a></li>
+						</ul>
+						<form>
+							<br>
+							<div class="alert alert-info"><h4>Country :</h4>
+								<span>Korea, Republic of</span></div>
+							<div class="alert alert-danger"><h4>Number :</h4>
+								<span>(02)000-0000</span></div>
+							<div class="alert alert-success"><h4>Email :</h4>
+								<span>Timeline@timeline.com</span></div>												
+						</form>
+					</div><!-- End of Sidebar -->					
+				</div><!-- End of Span4 -->
+				<div class="span8"><!-- Start of Span8 -->
+					<div class="editbtn">
+						<a class="btn btn-large" id="edit">Edit Profile</a>
+					</div>
+					<div class="hero-unit heromargin">
+						<h1 id="bigid"></h1>
+						<h3 id="bignickname"></h3>
+						<h2 id="bigcomment"></h2>
+					</div>
+				</div><!-- End of Span8 -->
+				<div class="span8"><!-- Start of Span8 -->					
+					<ul class="nav nav-list">
+						<li class="active"><a href="#"><h4>Comment</h4></a></li>
+					</ul>												
+					<div class="inside">							
+						<input type="text" style="width: 98%"  id="comment"/>
+					</div>									
+				</div><!-- End of Span8 -->
+				<div class="span8"> <!-- Start of Span8 -->					
+					<ul class="nav nav-list">
+						<li class="active"><a href="#">
+						<h4>Other Information</h4></a></li>
+					</ul>										
+					<div class="tabbable inside"><!-- Start of Tabbable -->
+						<ul class="nav nav-tabs">
+							<li class="active"><a href="#tab1" data-toggle="tab">Summary</a></li>
+							<li><a href="#tab2" data-toggle="tab">Nickname</a></li>
+							<li><a href="#tab3" data-toggle="tab">Country</a></li>
+							<li><a href="#tab4" data-toggle="tab">Web</a></li>
+						</ul>
+						<div class="tab-content"><!-- Start of Tab-content -->
+							<div class="tab-pane active center" id="tab1">
+								<span class="label label-info " id="labelnick">
+									Nickname</span>
+								<span class="label label-success between " id="labelcountry">
+									Country</span>
+								<span class="label label-important between " id="labelurl">
+									URL</span>
+							</div>
+							<div class="tab-pane" id="tab2">
+							   <input id="nickname" type="text" style="width: 95%"/>
+							</div>
+							<div class="tab-pane" id="tab3">
+								<input id="country" type="text" style="width: 95%"/>
+							</div>
+							<div class="tab-pane" id="tab4">
+								<input id="web" type="text" style="width: 95%"/>
+							</div>
+						</div><!-- End of Tab-content -->
+					</div><!-- End of Tabbable -->	
+					<hr>					
+                    <div class="inside center">
+						<a class="btn btn-large btn-danger" href="#" id="cancelBtn">Cancel</a>
+						<a class="btn btn-large btn-info between" href="#" id="saveBtn">Save</a>
+					</div>	
+				</div><!-- End of Span8 -->
+			</div><!-- End of Row -->
+		</div><!-- End of Container -->
+		<script type="text/javascript"
+		src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+		<script type="text/javascript"
+		src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
+		<script src="../static/js/bootstrap.js"></script>
+		<script src="../static/js/ExobrainLTA.js"></script>
+		<script src="../static/js/base64.js"></script>
+		<script>
+			$(document).ready(function() {
+				getLoginString();
+				doGetProfile();
+
+				$("#adminBtn").click(goAdmin);
+				$("#saveBtn").click(doSetProfile);
+				$("#cancelBtn").click(doCancel);
+				$("#logoutBtn").click(doLogout);
+
+				$("input[type=text]").attr("disabled", "disabled");
+				$('#edit').toggle(function() {
+					$("input[type=text]").removeAttr("disabled");
+				}, function() {
+					$("input[type=text]").attr("disabled", "disabled");
+				});
+				
+				$("#profile").click(
+					function() {
+						alert("profile clicked");
+					}
+				);
+			});
+		</script>
+	</body>
+</html>

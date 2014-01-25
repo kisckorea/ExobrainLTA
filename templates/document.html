@@ -1,0 +1,599 @@
+{% extends "logged.html" %}
+
+{% block head %}
+<h2>Document:<cite id="doc_id">{{ doc.doc_id }}</cite></h2>
+<div class="panel-body" align="center" style="padding: 0px;">
+<cite class="entity event_candidate"    >Event Candidate</cite>
+<cite class="entity event"              >Event</cite>
+<cite class="entity context location"   >Location</cite>
+<cite class="entity context time"       >Time</cite>
+<cite class="entity context participant">Participant</cite>
+</div>
+{% endblock head %}
+
+{% block menu %}
+<tr>
+    <td align="center" style="border: none; padding: 0px; padding-top: 17px; padding-right: 10px;">
+        <div class="panel panel-default" style="width: 180px;">
+        <div class="panel-body btn-group" style="padding-top:12px; padding-left: 0px; padding-right: 0px; height: 54px;">
+                <button class="btn btn-default btn-sm" id="append"><i class="glyphicon glyphicon-plus" > </i> Append</button>
+                <button class="btn btn-default btn-sm" id="delete"><i class="glyphicon glyphicon-minus"> </i> Delete</button>
+        </div>
+        <div class="panel-footer" style="padding: 3px; font-size: 10pt; font-family: 'Calibri';">Context Mode</div>
+        </div>
+    </td>
+    <td align="center" style="border: none; padding: 0px; padding-top: 17px;">
+        <div class="panel panel-default" style="width:160px;">
+        <div class="panel-body" style="padding-top:7px; padding-left: 0px; padding-right: 0px; height: 54px;">
+            <button class="btn btn-default btn-sm" id="save"><i class="glyphicon glyphicon-saved"  > </i> Save</button>
+            <button class="btn btn-danger  btn-sm" id="home"><i class="glyphicon glyphicon-home"   > </i> Home</button>
+        </div>
+        <div class="panel-footer" style="padding: 3px; font-size: 10pt; font-family: 'Calibri';">Command</div>
+        </div>
+    </td>
+</tr>
+{% endblock menu %}
+
+{% block body %}
+<table class="table frame" align="center">
+<td class="main" style="border: none;">
+    <!-- Title -->
+    <div class="panel panel-default">
+        <div class="panel-heading">Title</div>
+        <div class="panel-body" id="title">{% for s in doc.title %}
+                <ol>{% for g1 in s %}
+                    <ul class="{{g1.class}}" id="g{{g1.words.0.id}}">{% for w1 in g1.words %}
+                        <li class="inline" id="w{{w1.id}}">{{ w1.text }}</li>{% endfor %}</ul>
+                {% endfor %}</ol>
+        {% endfor %}</div>
+    </div>
+
+    <!-- Content -->
+    <div class="panel panel-default">
+        <div class="panel-heading">Content</div>
+        <div class="panel-body" id="content">{% for p in doc.content %}
+            <p>{% for s in p %}
+                <ol>{% for g2 in s %}
+                    <ul class="{{g2.class}}" id="g{{g2.words.0.id}}">{% for w2 in g2.words %}
+                        <li class="inline" id="w{{w2.id}}">{{ w2.text }}</li>{% endfor %}</ul>
+                {% endfor %}</ol>
+            {% endfor %}</p>
+            {% if forloop.last == False %}<br/>{% endif %}
+        {% endfor %}</div>
+    </div>
+
+    <!-- Canvas -->
+    <div class="canvas_area">
+        
+    </div>
+</td>
+
+<td class="side" style="border: none;">
+    <!-- Side -->
+    <div class="side_fix">
+        <!-- Tags -->
+        <div class="panel panel-danger">
+            <div class="panel-heading">Location</div>
+            <div class="panel-body" id="location">{% for g3 in doc.locs %}
+                <ul class="{{g3.class}}" id="g{{g3.words.0.id}}" name="tag">{% for w3 in g3.words %}
+                    <li class="inline" id="w{{w3.id}}">{{ w3.text }}</li>{% endfor %}</ul>
+                {% if forloop.last == False %}<br/>{% endif %}
+            {% endfor %}</div>
+        </div>
+        <div class="panel panel-danger">
+            <div class="panel-heading">Date</div>
+            <div class="panel-body" id="date">
+                <ul class="{{doc.date.class}}" id="g{{doc.date.words.0.id}}" name="tag">{% for w4 in doc.date.words %}
+                    <li class="inline" id="w{{w4.id}}">{{ w4.text }}</li>{% endfor %}</ul>
+            </div>
+        </div>
+        <div class="panel panel-danger">
+            <div class="panel-heading">Blogger</div>
+            <div class="panel-body" id="blogger">
+                <ul class="{{doc.blgr.class}}" id="g{{doc.blgr.words.0.id}}" name="tag">{% for w5 in doc.blgr.words %}
+                    <li class="inline" id="w{{w5.id}}">{{ w5.text }}</li>{% endfor %}</ul>
+            </div>
+        </div>
+    </div>
+</td>
+</table>
+{% endblock body %}
+
+{% block script_custom %}
+<div style="position: absolute; top:0px; display: none;">
+    <menu id="remove_menu">
+        <command label="Event"       onclick="appendEntityAnnotation('event'      )"> </command>
+        <hr>
+        <command label="Location"    onclick="appendEntityAnnotation('location'   )"> </command>
+        <command label="Time"        onclick="appendEntityAnnotation('time'       )"> </command>
+        <command label="Participant" onclick="appendEntityAnnotation('participant')"> </command>
+    </menu>
+    <menu id="entity_menu">
+        <command label="Remove"      onclick="removeEntityAnnotation()"> </command>
+    </menu>
+</div>
+<link rel="stylesheet" href="/static/css/jquery.contextMenu.css" />
+<script type="text/javascript" src="/static/js/jquery.contextMenu.js"></script>
+<script type="text/javascript">
+var fromEntityAnnotationJson = function(data) {
+    var an = new Object();
+    var jp = JSON.parse(data);
+    for(var i in jp)
+        an[jp[i]["word"]] = { "group":jp[i]["group"], "class":jp[i]["class"] };
+    return an;
+};
+
+var fromContextAnnotationJson = function(data) {
+    var an = new Object();
+    var jp = JSON.parse(data);
+    for(var i in jp) {
+        if(!an[jp[i]["event"]])
+            an[jp[i]["event"]] = new Object();
+        an[jp[i]["event"]][jp[i]["context"]] = jp[i]["isAppend"];
+    }
+    return an;
+};
+
+var toEntityAnnotationJson = function(data) {
+    var lst = new Array();
+    for(var id_word in data)
+        lst.push({ "word":id_word, "group":data[id_word]["group"], "class":data[id_word]["class"] });
+    return JSON.stringify(lst);
+};
+
+var toContextAnnotationJson = function(data) {
+    var lst = new Array();
+    for(var i in data)
+        for(var j in data[i])
+            lst.push({ "event":i, "context":j, "isAppend":data[i][j] });
+    return JSON.stringify(lst);
+};
+
+// 전역변수 초기화
+var isContextAppend = true;
+var isSaved = true;
+var entity_annotation = new Object();
+{% if entity_annotation %}
+    entity_annotation = fromEntityAnnotationJson('{{ entity_annotation|safe }}');
+{% endif %}
+var context_annotation = new Object();
+{% if context_annotation %}
+    context_annotation = fromContextAnnotationJson('{{ context_annotation|safe }}');    
+{% endif %}
+var cntArrow = 0;
+// console.log("entity_annotation=");
+// console.log(entity_annotation);
+// console.log("context_annotation=");
+// console.log(context_annotation);
+
+/**
+ * 상태 변화용
+ */
+var startDragging = function(evt, ui) {
+    $(this).addClass("subj");
+};
+var stopDragging = function(evt, ui) {
+    $(this).removeClass("subj");
+};
+var setFocus = function(evt) {
+    $(this).addClass("focus");
+};
+var outFocus = function(evt) {
+    $(this).removeClass("focus");
+};
+
+/**
+ * 화면 로딩 처리
+ */
+$(document).ready(function() {
+    /**
+     * EntityAnnotation 기능 설정하기
+     */
+    $(".main").selectable({ filter: "ul.word" });
+    var opt_menu_remove = {
+        selector: "ul.ui-selected",
+        items: $.contextMenu.fromMenu($("#remove_menu")),
+    };
+    $.contextMenu(opt_menu_remove);
+    var opt_menu_entity = {
+        selector: "ul.entity[name!=tag]",
+        items: $.contextMenu.fromMenu($("#entity_menu")),
+    };
+    $.contextMenu(opt_menu_entity);
+    
+    /**
+     * EventAnnotation 기능 설정하기
+     */
+    $("ul.event_candidate").click(callEventAnnotation).css("cursor", "pointer");
+    var opt_drop = {
+        hoverClass: "that",
+        tolerance: "pointer",
+        drop: callContextAnnotation,
+    };
+    $("ul.event").droppable(opt_drop).click(callEventAnnotation).css("cursor", "pointer");
+    
+    /**
+     * ContextAnnotation 기능 설정하기
+     */
+    var opt_drag = {
+        cancel: false,
+        helper: "clone",
+        start: startDragging,
+        stop : stopDragging,
+    };
+    $("ul.context").draggable(opt_drag).mouseover(setFocus).mouseout(outFocus).css("cursor", "pointer");
+    setTimeout(renewContextAnnotation, 100);
+    
+    /**
+     * 명령 버튼 기능 설정하기
+     */
+    isSaved = true;
+    activateCommandButtons();
+    $("#save"  ).click(saveAnnotation);
+    $("#home"  ).click(homeAnnotation);
+    $("#append").click(activateContextButtons).trigger("click");
+    $("#delete").click(activateContextButtons);
+});
+
+/**
+ * 화면 스크롤/크기변화 처리
+ */
+$(document).scroll(function() {
+    renewContextAnnotation();
+});
+$(window).resize(function() {
+    renewContextAnnotation();
+});
+
+/**
+ * 1. EntityAnnotation
+ */
+var appendEntityAnnotation = function(type) {
+    sel_f = $(".ui-selected:first");
+    sel_f_id = parseInt(sel_f.attr("id").substring(1));
+    sel_l = $(".ui-selected:last");
+    sel_l_id = parseInt(sel_l.attr("id").substring(1));
+    if($(".ui-selected").length!=sel_l_id-sel_f_id+1) {
+        alert("잘못된 영역 선택입니다. 연속된 단어들을 선택해 주세요.");
+        $(".ui-selected").removeClass("ui-selected");
+        return;
+    }
+    
+    var context_class = "";
+    switch(type) {
+        case "location":
+        case "time":
+        case "participant":
+            context_class = "context ";
+    }
+    $(".ui-selected:gt(0)").each(function(i) {
+        sel_f.append(" ");
+        sel_f.append($(this).children());
+        $(this).detach();
+        entity_annotation[sel_f_id+1+i] = { "group":"i", "class":"entity "+context_class+type };
+    });
+    entity_annotation[sel_f_id] = { "group":"b", "class":"entity "+context_class+type };
+    
+    sel_f.switchClass("word", "entity "+context_class+type);
+    sel_f.removeClass("ui-selected").removeClass("ui-selectee").removeData("selectable-item");
+    
+    switch(type) {
+        case "event":
+            var opt_drop = {
+                hoverClass: "that",
+                tolerance: "pointer",
+                drop: callContextAnnotation,
+            };
+            sel_f.droppable(opt_drop).click(callEventAnnotation).css("cursor", "pointer");
+            break;
+        case "location":
+        case "time":
+        case "participant":
+            var opt_drag = {
+                cancel: false,
+                helper: "clone",
+                start: startDragging,
+                stop: stopDragging,
+            };
+            sel_f.draggable(opt_drag).mouseover(setFocus).mouseout(outFocus).css("cursor", "pointer");
+            break;
+    }
+    
+    isSaved = false;
+    activateCommandButtons();
+    // console.log("entity_annotation=");
+    // console.log(entity_annotation);
+    // console.log(toEntityAnnotationJson(entity_annotation));
+};
+
+var removeEntityAnnotation = function() {
+    that = $(".context-menu-active");
+    that.addClass("word");
+    that.removeClass("entity").removeClass("event");
+    that.removeClass("context").removeClass("location").removeClass("time").removeClass("participant");
+    $(that.children().get().reverse()).each(function(i) {
+        child_id = $(this).attr("id").substring(1);
+        that.after('<ul id="g'+child_id+'" class="word"></ul> ');
+        that.next().append($(this).clone());
+        entity_annotation[child_id] = { "group":"b", "class":"word" };
+    });
+    that_id = $(that).attr("id").substring(1);
+    that.detach();
+    
+    for(var i in context_annotation)
+        for(var j in context_annotation[i])
+            if(i==that_id || j==that_id)
+                context_annotation[i][j] = false;
+                
+    isSaved = false;
+    activateCommandButtons();
+    renewContextAnnotation();
+    // console.log("entity_annotation=");
+    // console.log(entity_annotation);
+};
+
+/**
+ * 2. EventAnnotation
+ */
+var callEventAnnotation = function(evt) {
+    var isAppend = !$(this).hasClass("event");
+    var that = this;
+    var isSuccess = doEventAnnotation(isAppend, that);
+    if(isSuccess) {
+        $(that).children().each(function(i) {
+            child_id = $(this).attr("id").substring(1);
+            entity_annotation[child_id] = { "group":i==0?"b":"i", "class":isAppend?"entity event":"entity event_candidate" };
+        });
+        isSaved = false;
+        activateCommandButtons();
+    }
+    // console.log("entity_annotation=");
+    // console.log(entity_annotation);
+};
+
+var doEventAnnotation = function(isAppend, that) {
+    if(isAppend) {
+        $(that).animate({ color: "#FFFFFF" }, 250);
+        $(that).addClass("event");
+        $(that).removeClass("event_candidate");
+        var opt_drop = {
+            hoverClass: "that",
+            tolerance: "pointer",
+            drop: callContextAnnotation,
+        };
+        $(that).droppable(opt_drop);
+    }
+    else {
+        $(that).css("color", "#FF0000");
+        $(that).addClass("event_candidate");
+        $(that).removeClass("event");
+        that_id = $(that).attr("id").substring(1);
+        for(var j in context_annotation[that_id])
+            context_annotation[that_id][j] = false;
+        renewContextAnnotation();
+        $(that).droppable("destroy");
+    }
+    return true;
+};
+
+/**
+ * 3. ContextAnnotation
+ */
+var callContextAnnotation = function(evt, ui) {
+    var subj = ".subj";
+    var that = this;
+    var isAppend = isContextAppend;
+    var isSuccess = doContextAnnotation(isAppend, that, subj);
+    if(isSuccess) {
+        that_id = $(that).attr("id").substring(1);
+        subj_id = $(subj).attr("id").substring(1);
+        if(!context_annotation[that_id])
+            context_annotation[that_id] = new Object();
+        context_annotation[that_id][subj_id] = isAppend;
+        isSaved = false;
+        activateCommandButtons();
+    }
+    // console.log("context_annotation=");
+    // console.log(context_annotation);
+};
+
+var doContextAnnotation = function(isAppend, that, subj) {
+    var triple = $(that).attr("id")+"_hasContext_"+$(subj).attr("id");
+    var isNew = $("[triple="+triple+"]").size()<=0;
+    if(isAppend && !isNew || !isAppend && isNew)
+        return false;
+
+    if(isAppend)
+        appendCanvas($(".canvas_area"), $(subj), $(that), triple);
+    else
+        $("[triple="+triple+"]").detach();
+    return true;
+};
+
+/**
+ * Annotation 저장하기 
+ */
+var saveAnnotation = function() {
+    $.ajax({
+        url : "/api/document/save/",
+        type: "post",
+        data: {
+            doc_id: $("#doc_id").html(),
+            entity_annotation : toEntityAnnotationJson(entity_annotation),
+            context_annotation: toContextAnnotationJson(context_annotation),
+        },
+        beforeSend: function(req) {
+            req.setRequestHeader("Authorization", loginstring);
+        },
+        success: function() {
+            alert("Annotation 기록이 모두 저장되었습니다.");
+            isSaved = true;
+            activateCommandButtons();
+        },
+        error: function() {
+            alert("저장에 실패하였습니다. 서버에 문제가 있는 것 같습니다. 담당자에게 연락 바랍니다.");
+        },
+    });
+};
+
+/**
+ * Annotation 종료하기 
+ */
+var homeAnnotation = function() {
+  if(isSaved || !isSaved && confirm("저장하지 않고 나갑니까?"))
+      window.location = "/";
+};
+
+/**
+ * ContextAnnotation 최신화
+ */
+var renewContextAnnotation = function() {
+    cntArrow = 0;
+    $(".canvas_div").detach();
+    for(var i in context_annotation) {
+        for(var j in context_annotation[i]) {
+            var subj = "#g"+j;
+            var that = "#g"+i;
+            var triple = $(that).attr("id")+"_hasContext_"+$(subj).attr("id");
+            if(context_annotation[i][j])
+                appendCanvas($(".canvas_area"), $(subj), $(that), triple);
+        }
+    }
+};
+
+/**
+ * ContextAnnotation 버튼 활성화 
+ */
+var activateContextButtons = function(evt) {
+    isContextAppend = $(this).attr("id")=="append";
+    if(isContextAppend) {
+        $("#append").switchClass("btn-default", "btn-primary", 0);
+        $("#delete").switchClass("btn-danger" , "btn-default", 0);
+        $(".ui-draggable").css("cursor", "pointer");
+    }
+    else {
+        $("#append").switchClass("btn-primary", "btn-default", 0);
+        $("#delete").switchClass("btn-default", "btn-danger" , 0);
+        $(".ui-draggable").css("cursor", "no-drop");
+    }
+};
+
+/**
+ * Command 버튼 활성화
+ */
+var activateCommandButtons = function() {
+    if(isSaved) {
+        $("#save").switchClass("btn-primary", "btn-default", 100);
+        $("#save").addClass("disabled");
+        $("#home").trigger("focus");
+    }
+    else {
+        $("#save").switchClass("btn-default", "btn-primary", 100);
+        $("#save").removeClass("disabled");
+        $("#save").trigger("focus");
+    }
+};
+
+/**
+ * 캔버스 추가하기
+ */
+var appendCanvas = function(area, subj, that, triple) {
+    cntArrow++;
+    var canvas_div = "canvas_div"+cntArrow;
+    var canvas_cnv = "canvas_cnv"+cntArrow;
+    area.append('<div class="canvas_div" id="'+canvas_div+'"><canvas id="'+canvas_cnv+'"></div>');
+    
+    var color = "#00A0E9";
+    if(subj.hasClass("location"))
+        color = "#097c25";
+    else if(subj.hasClass("time"))
+        color = "#fff100";
+    else if(subj.hasClass("participant"))
+        color = "#f39800";
+    drawCurve($("#"+canvas_div), $("#"+canvas_cnv), $("#"+canvas_cnv)[0].getContext("2d"), subj, that, $(".main"), color);
+    $("#"+canvas_div).attr("triple", triple);
+};
+
+/**
+ * subj와 that 사이를 잇는 커브 그리기
+ */
+function drawCurve(canvas_div, canvas_cnv, canvas_ctx, subj, that, parent, color) {
+    // 두 개체의 각 중앙 좌표 구하기
+    var p1 = new Object();
+    p1.w = subj.width () + /*padding*/0*2 + /*border*/3*2;
+    p1.h = subj.height() + /*padding*/0*2 + /*border*/3*2;
+    p1.x = subj.offset().left - parent.offset().left + p1.w/2.0;
+    p1.y = subj.offset().top  - parent.offset().top  + p1.h/2.0;
+    var p2 = new Object();
+    p2.w = that.width () + /*padding*/0*2 + /*border*/3*2;
+    p2.h = that.height() + /*padding*/0*2 + /*border*/3*2;
+    p2.x = that.offset().left - parent.offset().left + p2.w/2.0;
+    p2.y = that.offset().top  - parent.offset().top  + p2.h/2.0;
+
+    // 캔버스 위치 지정하기
+    var m = 50;/*margin*/
+    var w = Math.abs(p2.x-p1.x);
+    var h = Math.abs(p2.y-p1.y);
+    canvas_div.css ("position","absolute");
+    canvas_div.css ("left", Math.min(p1.x,p2.x)-m);
+    canvas_div.css ("top" , Math.min(p1.y,p2.y)-m);
+    canvas_cnv.attr("width" , w+m*2);
+    canvas_cnv.attr("height", h+m*2);
+    
+    // 커브 그리기
+    var r = 50;/*range*/
+    canvas_ctx.lineWidth = 3;
+    canvas_ctx.strokeStyle = color;
+    canvas_ctx.beginPath();
+    if(h<r) {
+        w += m;
+        h += m;
+        // ↘
+        if(p1.x<=p2.x && p1.y<=p2.y) {
+            canvas_ctx.moveTo(m,m);
+            canvas_ctx.bezierCurveTo(m,m-m ,w,m-m ,w,h);
+        }
+        // ↙
+        else if(p1.x>p2.x && p1.y<=p2.y) {
+            canvas_ctx.moveTo(w,m);
+            canvas_ctx.bezierCurveTo(w,m-m ,m,m-m ,m,h);
+        }
+        // ↗
+        else if(p1.x<=p2.x && p1.y>p2.y) {
+            canvas_ctx.moveTo(m,h);
+            canvas_ctx.bezierCurveTo(m,h+m ,w,h+m ,w,m);
+        }
+        // ↖
+        else if(p1.x>p2.x && p1.y>p2.y) {
+            canvas_ctx.moveTo(w,h);
+            canvas_ctx.bezierCurveTo(w,h+m ,m,h+m ,m,m);
+        }
+    }
+    else {
+        w += m;
+        h += m;
+        // ↘
+        if(p1.x<=p2.x && p1.y<=p2.y) {
+            canvas_ctx.moveTo(m,m);
+            canvas_ctx.bezierCurveTo(m,m ,w,m ,w,h);
+        }
+        // ↙
+        else if(p1.x>p2.x && p1.y<=p2.y) {
+            canvas_ctx.moveTo(w,m);
+            canvas_ctx.bezierCurveTo(w,m ,m,m ,m,h);
+        }
+        // ↗
+        else if(p1.x<=p2.x && p1.y>p2.y) {
+            canvas_ctx.moveTo(m,h);
+            canvas_ctx.bezierCurveTo(m,h ,w,h ,w,m);
+        }
+        // ↖
+        else if(p1.x>p2.x && p1.y>p2.y) {
+            canvas_ctx.moveTo(w,h);
+            canvas_ctx.bezierCurveTo(w,h ,m,h ,m,m);
+        }
+    }
+    canvas_ctx.stroke();
+};
+</script>
+{% endblock script_custom %}
