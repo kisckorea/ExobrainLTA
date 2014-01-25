@@ -57,8 +57,8 @@ def need_auth(functor):
 def toJSON(objs, status=200):
     # print objs
     json_str = json.dumps(objs)
-    print 'here2-json'
-    print json_str
+#     print 'here2-json'
+#     print json_str
     return HttpResponse(json_str, status=status, content_type='application/json; charset=utf-8')
 
 def serialize(objs):
