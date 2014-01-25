@@ -25,10 +25,10 @@ var doJoin = function() {
 			alert("Error!");
 		},
 	});
-}
+};
 var goAdmin = function() {
 	location.href = baseUrl + "admin/";
-}
+};
 var doLogin = function() {
 	username = $('#username').val();
 	password = $('#password').val();
@@ -49,7 +49,7 @@ var doLogin = function() {
 			alert("Fail to get data!");
 		},
 	});
-}
+};
 var doGetTask = function() {
 	$.ajax({
 		type : 'get',
@@ -78,7 +78,7 @@ var doGetTask = function() {
 			alert("Fail to get data!!!");
 		},
 	});
-}
+};
 
 var doAppendTaskGroup = function(data) {
 
@@ -92,38 +92,8 @@ var doAppendTaskGroup = function(data) {
 
 	node.show();
 	$('#grouparea').append(node);
-}
-// var doGetSubtask = function() {
-	// var group = $(this).parent().text();
-// 
-	// $.ajax({
-		// type : 'get',
-		// url : baseUrl + 'api/subtask/',
-		// data : {
-		// group : group
-		// },
-		// beforeSend : function(req) {
-			// req.setRequestHeader('Authorization', loginstring);
-			// //req.setRequestHeader('Group', group);
-		// },
-		// success : function(data) {
-			// window.location = "subtask.html";
-// 			
-			// for (var i in data.group_list) {
-				// //alert(data.group_list[i]);
-				// doAppendTaskGroup(data.group_list[i]);
-			// }
-// 
-			// $("#username").html(username);
-			// $("#total").html(data.test);
-// 
-		// },
-		// error : function(msg) {
-			// alert("Fail to set data!");
-		// },
-	// });
-// }
-// 
+};
+
 var doGetSubtask = function() {
 	var group = $(this).parent().text();
 	
@@ -143,12 +113,15 @@ var doGetSubtask = function() {
 			
 			$('.selected_group', node).append(data.subject);
 			
-			
-			// for (var i in data.candidates) {
-// 				
-				// doAppendSubTaskCandidate(data.candidates[i]);
-// 				
-			// }
+			//빨리 subtask에서 넘겨준 내용을 뿌려야함
+			/*
+			for (var i in data.candidates) {
+				
+				doAppendSubTaskCandidate(data.candidates[i]);
+				
+			}
+			*/
+			//지금은 노가다로 찍고 있음
 			doAppendSubTaskCandidate(data.candidates1, data.candidates1_c);
 			doAppendSubTaskCandidate(data.candidates2, data.candidates2_c);
 			doAppendSubTaskCandidate(data.candidates3, data.candidates3_c);
@@ -164,32 +137,36 @@ var doGetSubtask = function() {
 			alert("subtask Error!");
 		},
 	});
-}
+};
 
 var doClearSubTask = function() {
 	$(".selected_group").html('');
-	$('#candidateTemplate').html('')
-	$('#candidatearea').html('')
-}
+	$('#candidateTemplate').html('');
+	$('#candidatearea').html('');
+};
 var doAppendSubTaskCandidate = function(data,data2) {
 
 	node = $('#candidateTemplate').clone();
-
+	
+	//지금은 노가다로 찍고 있음
 	$('.triple', node).append(data);
 	$('.triple', node).append(" (");
 	$('.triple', node).append(data2);
 	$('.triple', node).append("개)");
-	// $('.triple', node).append(" ");
-	// $('.triple', node).append(data.object);
-	//$('.sub_cluster_1', node).append(data[1]);
-
-	// $('.like', node).prepend(data.liked + "  ");
 	
-	//$('#select_candidate', node).attr("value", data.id);
+	//빨리 subtask에서 넘겨준 내용을 뿌려야함
+	/*
+	$('.triple', node).append(" ");
+	$('.triple', node).append(data.object);
+	$('.sub_cluster_1', node).append(data[1]);
 
+	$('.like', node).prepend(data.liked + "  ");
+	
+	$('#select_candidate', node).attr("value", data.id);
+	*/
 	node.show();
 	$('#candidatearea').append(node);
-}
+};
 
 //FOR Validation
 var doCompleteValidation = function() {
@@ -219,16 +196,15 @@ var doCompleteValidation = function() {
 			//doReloadValidation();
 		},
 		error : function(msg) {
-			alert("Fail to write data!")
+			alert("Fail to write data!");
 		},
 	});
-}
+};
 var doGetValidation = function() {
+	
+	//subtask.html에서 user가 선택한 버튼의 id를 읽어와서 그 id에 해당하는 지식을 서버에서 가져와야함
 	// var triple = $(this).parent().text();
 	// var id = $(this).val();
-	
-	//alert(id);
-	//doGoValidation(id);
 	
 	$.ajax({
 		type : 'get',
@@ -250,6 +226,8 @@ var doGetValidation = function() {
 			// alert(data[i]);
 // 			
 			// }
+			
+			//현재는 강제로 이동시킴
 			window.location = "validation.html";
 			
 			doAppendValidationSubject(data);
@@ -267,7 +245,7 @@ var doGetValidation = function() {
 			alert("Validation: Fail to get data!");
 		},
 	});
-}
+};
 
 var doGetValidation2 = function() {
 	// var triple = $(this).parent().text();
@@ -313,7 +291,7 @@ var doGetValidation2 = function() {
 			alert("Validation: Fail to get data!");
 		},
 	});
-}
+};
 
 var doAppendValidationSubject = function(data) {
 
@@ -327,7 +305,7 @@ var doAppendValidationSubject = function(data) {
 
 	node.show();
 	$('#subjectarea').append(node);
-}
+};
 var doAppendValidationObject = function(data) {
 
 	node = $('#objTemplate').clone();
@@ -340,7 +318,7 @@ var doAppendValidationObject = function(data) {
 
 	node.show();
 	$('#objectarea').append(node);
-}
+};
 //FOR TIMELINE
 var doWriteTimeline = function() {
 	var msg = $("#writearea").val();
@@ -361,7 +339,7 @@ var doWriteTimeline = function() {
 			alert("Fail to write data!")
 		},
 	});
-}
+};
 var doGetTimeline = function() {
 	$.ajax({
 		type : 'get',
@@ -382,7 +360,7 @@ var doGetTimeline = function() {
 			alert("Fail to get data!");
 		},
 	});
-}
+};
 var doAppend = function(data) {
 	node = $('#msgTemplate').clone();
 
@@ -399,21 +377,21 @@ var doAppend = function(data) {
 
 	node.show();
 	$('#timelinearea').append(node);
-}
+};
 
 var doReloadValidation = function() {
 	doClear();
 	//doGetValidation();
-}
+};
 
 var doReload = function() {
 	doClear();
 	doGetTimeline();
-}
+};
 
 var doClear = function() {
 	$('#timelinearea').html('')
-}
+};
 var doDeleteTimeline = function() {
 	var id = $(this).val();
 	alert(id);
@@ -430,7 +408,7 @@ var doDeleteTimeline = function() {
 			alert("Fail to delete data!");
 		},
 	});
-}
+};
 var doSearchTimeline = function() {
 	$.ajax({
 		type : 'get',
@@ -454,7 +432,7 @@ var doSearchTimeline = function() {
 			alert("Fail to get data!");
 		},
 	});
-}
+};
 var doLogout = function() {
 	resetLoginString();
 	window.location = "login.html";
@@ -475,7 +453,7 @@ var doLike = function() {
 			alert("Fail to set data!");
 		},
 	});
-}
+};
 var doGetUserInfo = function() {
 	var username = $("div", this).html();
 	$.ajax({
@@ -497,7 +475,7 @@ var doGetUserInfo = function() {
 			alert("Fail to get data!");
 		},
 	});
-}
+};
 //END TIMELINE
 
 // FOR PROFILE
@@ -516,7 +494,7 @@ var doGetProfile = function() {
 			alert("Fail to get data!");
 		},
 	});
-}
+};
 var fillProfile = function(data) {
 
 	$("#bigid").html(data.username);
@@ -530,7 +508,7 @@ var fillProfile = function(data) {
 	$("#labelnick").html("Nickname : " + data.nickname);
 	$("#labelcountry").html("Country : " + data.country);
 	$("#labelurl").html("URL : " + data.url);
-}
+};
 var doSetProfile = function() {
 	var nickname = $("#nickname").val();
 	var comment = $("#comment").val();
@@ -557,7 +535,7 @@ var doSetProfile = function() {
 			alert("Error!");
 		},
 	});
-}
+};
 var doCancel = function() {
 	location.reload();
 };

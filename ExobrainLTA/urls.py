@@ -35,7 +35,6 @@ urlpatterns = patterns('',
 # Validation
 #===============================================================================
     url(r'^api/validation/$', ExobrainLTA.views.validation_view),
-    url(r'^api/validation2/$', ExobrainLTA.views.validation_view2),
     url(r'^api/validation/create/$', ExobrainLTA.views.validation_create_view),
 
 #===============================================================================
