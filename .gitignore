@@ -2,6 +2,3 @@
 *.pyc
 *.pyo
 db.sqlite3
-*.class
-*.pyc
-*.pyo
