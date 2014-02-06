@@ -88,7 +88,7 @@ def get_Group():
     cur = db.cursor() 
     
     #cur.execute("SELECT * FROM sample_demo1 where sub_0_cluster='사람' order by sub_1_cluster; ")
-    cur.execute("SELECT * FROM sample_demo1 order by sub_0_cluster")
+    cur.execute("SELECT * FROM external_total order by name")
     rows = cur.fetchall()
    
  
@@ -105,9 +105,7 @@ def get_Group():
 그룹에 속하는 지식들 가져오기
 '''
 def get_GroupCandiate(selected_group):
-    temp = selected_group.split('-')
-    query1 = temp[0].strip()
-    query2 = temp[1].strip()
+    
     db = MySQLdb.connect(host="lod.kaist.ac.kr", user="exobrain", passwd="exobrain", db="exobrain") 
     
     db.query("set character_set_connection=utf8;")
@@ -117,7 +115,7 @@ def get_GroupCandiate(selected_group):
     db.query("set character_set_database=utf8;")
     
     cur = db.cursor()
-    sql = "SELECT * FROM sample_demo1 where sub_0_cluster='%s' AND sub_1_cluster ='%s' limit 10;" % (query1, query2)
+    sql = "SELECT * FROM external_total where name='%s' ;" % (selected_group)
     
     try:
         result = cur.execute(sql)
@@ -180,15 +178,17 @@ def task_view(request):
     rows = get_Group()  # 예전에 가져왔어도 계속 가져오는 문제 있음.
     # group의 명 set으로 저장
     group_set = set()
+    #print group_set
         
     for row in rows:
-        # print unicode(row[0],'utf-8')
-        str1 = unicode(row[0], 'utf-8')
-        str2 = unicode(row[1], 'utf-8')    
-        str = str1 + "-" + str2
-        group_set.add(str)
+        # print unicode(row[1],'utf-8')
+        str = unicode(row[2], 'utf-8')    
+        if len(str) !=0:
+            group_set.add(str)
 
     group_list = list(group_set)
+    group_list.sort()
+    print group_list
             
     #결과 확인 test   
     """
@@ -234,14 +234,19 @@ def subtask_view(request):
     
     #2. 선택한 그룹에 해당하는 지식들을 가져온다.
     rows = get_GroupCandiate(utf_selected_group)
-    candidate_dic = {}
+    
+    #논개의 그룹중 같은 "subject"로 시작하는 triple 수 세기
+    subject_count = {}
+    print len(rows)
     for row in rows:
+        print row
         '''
         sub_cluster_0 = unicode(row[0], 'utf-8')
         sub_cluster_1 = unicode(row[1], 'utf-8')
         source = unicode(row[12], 'utf-8')   
         '''
-        subject = unicode(row[6], 'utf-8').replace('http://ko.dbpedia.org/resource/', '').replace('http://doopedia.co.kr/resource/', '')
+        subject = unicode(row[5], 'utf-8')
+        #subject = unicode(row[4], 'utf-8').replace('http://ko.dbpedia.org/resource/', '').replace('http://doopedia.co.kr/resource/', '')
         '''   
         object_ = unicode(row[8], 'utf-8').replace('http://ko.dbpedia.org/resource/', '').replace('http://doopedia.co.kr/resource/', '')  
         predicate = unicode(row[7], 'utf-8').replace('http://ko.dbpedia.org/property/', '').replace('http://doopedia.co.kr/property/', '')
@@ -249,21 +254,21 @@ def subtask_view(request):
         object_desc = get_DBpedia(subject)
         '''
         
-        if candidate_dic.has_key(subject):
-            candidate_dic[subject] = candidate_dic.get(subject) +1
+        if subject_count.has_key(subject):
+            subject_count[subject] = subject_count.get(subject) +1
         else:
-            candidate_dic[subject] = 1
+            subject_count[subject] = 1
             
     #3. subjec별로 숫자 세고 넘기기
     #시도 1. sql로 sqlite에 들어있는 애들 빠르게 가져올수 있나?
     #candidates = Knowledge_Candidate.objects.order_by('-subject').all()
-    
+    print subject_count
     
     # 시도 2. 없으면 노가다 
     '''
-    for key in candidate_dic:
-       print key, str(candidate_dic[key])
-        count = unicode(candidate_dic[key],'utf-8')
+    for key in subject_count:
+       print key, str(subject_count[key])
+        count = unicode(subject_count[key],'utf-8')
         print key, count
         st = SubTask(key, count)
         print 'here'
@@ -307,16 +312,18 @@ def subtask_view(request):
 '''
     
     #4 subject별로 정리된 데이터를 SubTask(model)라고 하고 그것들을 생성, 저장
-    '''
-    r = SubTask('김유신','5')
-    try:
-        r.save() 
-    except Exception as e:
-        print str(e)
     
-    r1 = SubTask('김홍도','4')
-    r1.save()
-    '''
+    for key in subject_count:
+        count = '\'numbers: '+str(subject_count[key]) +'\''
+        
+        print key, count
+        r = SubTask(key,count)
+        try:
+            r.save() 
+        except Exception as e:
+            print str(e)
+    
+    
 
     #5 subtask (지식)들을 client로 넘겨준다
     candidates = SubTask.objects.order_by('-taskname').all()
@@ -329,7 +336,8 @@ def subtask_view(request):
             이 내용들이 task.html 에게 넘겨줘야 할 사항들
             '''
             'selected_group' : selected_group,      #선택한 그룹
-            'candidates' : serialize(candidates),   #검증해야할 subtask의 지식들
+            'candidates' : subject_count,
+            #'candidates' : serialize(candidates),   #검증해야할 subtask의 지식들
             
             '''
             지금은 이 내용들이 task.html에게 넘어가고 있음
