@@ -125,7 +125,7 @@ var doGetSubtask = function() {
 
 			for (var i in object2) {
 
-				doAppendSubTaskCandidate(object2[i]);
+				doAppendSubTaskCandidate(i, object2[i]);
 				
 			}
 			
@@ -146,7 +146,17 @@ var doClearSubTask = function() {
 	$('#candidateTemplate').html('');
 	$('#candidatearea').html('');
 };
-var doAppendSubTaskCandidate = function(data2) {
+
+var doSelect = function(e) {
+	//input box
+	console.log($(this).get(0));
+	console.log($(this).get(0).parent.text());
+	console.log($(this).parent.parent.text());
+	console.log($(this).parent.parent.value());
+	
+	
+};
+var doAppendSubTaskCandidate = function(i, data2) {
 
 	node = $('#candidateTemplate').clone();
 	
@@ -155,17 +165,15 @@ var doAppendSubTaskCandidate = function(data2) {
 	$('.triple', node).append(" (");
 	$('.triple', node).append(data2[1]);
 	$('.triple', node).append("개)");
+	$(".xxxxx", node)["key"] = data2[0];
 	
-	//빨리 subtask에서 넘겨준 내용을 뿌려야함
-	/*
-	$('.triple', node).append(" ");
-	$('.triple', node).append(data.object);
-	$('.sub_cluster_1', node).append(data[1]);
+	$('#xxxxx', node).attr("value", data2[0]);
+	node["value"] = i;
+	node['key'] = data2[0]
+	// div 태그에 key, value를 할당
+	console.log(node);
+	console.log(i);
 
-	$('.like', node).prepend(data.liked + "  ");
-	
-	$('#select_candidate', node).attr("value", data.id);
-	*/
 	node.show();
 	$('#candidatearea').append(node);
 };
@@ -202,18 +210,28 @@ var doCompleteValidation = function() {
 		},
 	});
 };
-var doGetValidation = function() {
+var doGetValidation = function(evt, a) {
 	
 	//subtask.html에서 user가 선택한 버튼의 id를 읽어와서 그 id에 해당하는 지식을 서버에서 가져와야함
-	// var triple = $(this).parent().text();
-	// var id = $(this).val();
+	var triple = $(this).parent().text();
+	var id = $(this).val();
+	console.log("ididididid")
+	console.log($(this));
+	console.log(id);
+	console.log(evt);
+	console.log(a);
+	console.log($("input[type=checkbox]").length);
+	checkbox = $("input[type=checkbox]")
+	for (var v2 in checkbox) {
+		console.log(checkbox[v2]);
+	}
 	
 	$.ajax({
 		type : 'get',
 		url : baseUrl + 'api/validation/',
-		// data : {
-			// id : id
-		// },
+		data : {
+			id : id
+		},
 		beforeSend : function(req) {
 			req.setRequestHeader('Authorization', loginstring);
 		},
@@ -230,7 +248,7 @@ var doGetValidation = function() {
 			// }
 			
 			//현재는 강제로 이동시킴
-			window.location = "validation.html";
+			//window.location = "validation.html";
 			
 			doAppendValidationSubject(data);
 			doAppendValidationObject(data);

@@ -22,10 +22,10 @@
 								<a href="validation.html">Validation</a>
 							</li>
 
-							<!--li>
-								<a href="timeline.html">Timeline</a>
-							</li>
 							<li>
+								<a href="__timeline.html">Timeline</a>
+							</li>
+							<!--li>
 								<a href="profile.html">Profile</a>
 							</li>
 							<li>
@@ -75,7 +75,7 @@
 					<div class="roundinside" align="left"	id='candidateTemplate' style="display:none;">
 						<a data-toggle="modal" class="getInfo"> <div class='name lightblue'></div> </a>
 						<div class='triple'>
-							<input type=checkbox  vertical-align:top  name="uri_selected" value="0"
+							<input id="xxxxx" type=checkbox  vertical-align:top  name="uri_selected" value="0"
 								col="100%" row="100%">
 							 <!--a class="btn btn-mini" id="select_candidate" name="select_candidate" > <i class='icon-check'></i></a--> 
 						</div>
@@ -160,6 +160,7 @@
 				doGetTask();
 				$("[name=select_group]").live("click", doGetSubtask);
 				$("[name=select_candidate]").live("click", doGetValidation);
+				$("[name=uri_selected]").live("click", doSelect);
 
 
 				$("#startBtn").click(doGetValidation);
