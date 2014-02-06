@@ -111,22 +111,24 @@ var doGetSubtask = function() {
 		},
 		success : function(data) {
 			
-			$('.selected_group', node).append(data.subject);
+			console.log("data");
+			console.log(data);
+			console.log(data["total"]);
+			console.log(data["candidates"]);
 			
-			//빨리 subtask에서 넘겨준 내용을 뿌려야함
-			/*
-			for (var i in data.candidates) {
-				
-				doAppendSubTaskCandidate(data.candidates[i]);
+			console.log("parsed!!!");
+			object2 = JSON.parse(data["candidates"]);
+			console.log(object2);
+			console.log("-=---");
+			
+			$('.selected_group', node).append(data.subject);
+
+			for (var i in object2) {
+
+				doAppendSubTaskCandidate(object2[i]);
 				
 			}
-			*/
-			//지금은 노가다로 찍고 있음
-			doAppendSubTaskCandidate(data.candidates1, data.candidates1_c);
-			doAppendSubTaskCandidate(data.candidates2, data.candidates2_c);
-			doAppendSubTaskCandidate(data.candidates3, data.candidates3_c);
-			doAppendSubTaskCandidate(data.candidates4, data.candidates4_c);
-			doAppendSubTaskCandidate(data.candidates5, data.candidates5_c);
+			
 			$(".selected_group").html(data.selected_group);
 			 $("#username").html(username);
 			 $("#total").html(data.total);
@@ -144,14 +146,14 @@ var doClearSubTask = function() {
 	$('#candidateTemplate').html('');
 	$('#candidatearea').html('');
 };
-var doAppendSubTaskCandidate = function(data,data2) {
+var doAppendSubTaskCandidate = function(data2) {
 
 	node = $('#candidateTemplate').clone();
 	
 	//지금은 노가다로 찍고 있음
-	$('.triple', node).append(data);
+	$('.triple', node).append(data2[0]);
 	$('.triple', node).append(" (");
-	$('.triple', node).append(data2);
+	$('.triple', node).append(data2[1]);
 	$('.triple', node).append("개)");
 	
 	//빨리 subtask에서 넘겨준 내용을 뿌려야함

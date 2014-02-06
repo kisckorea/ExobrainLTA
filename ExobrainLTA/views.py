@@ -12,8 +12,7 @@ import json
 from SPARQLWrapper import SPARQLWrapper, JSON
 import MySQLdb 
 import sys
-
-
+import operator
 
 
 def serve_html(request, page):
@@ -188,7 +187,7 @@ def task_view(request):
 
     group_list = list(group_set)
     group_list.sort()
-    print group_list
+  
             
     #결과 확인 test   
     """
@@ -237,9 +236,8 @@ def subtask_view(request):
     
     #논개의 그룹중 같은 "subject"로 시작하는 triple 수 세기
     subject_count = {}
-    print len(rows)
+
     for row in rows:
-        print row
         '''
         sub_cluster_0 = unicode(row[0], 'utf-8')
         sub_cluster_1 = unicode(row[1], 'utf-8')
@@ -258,94 +256,15 @@ def subtask_view(request):
             subject_count[subject] = subject_count.get(subject) +1
         else:
             subject_count[subject] = 1
-            
-    #3. subjec별로 숫자 세고 넘기기
-    #시도 1. sql로 sqlite에 들어있는 애들 빠르게 가져올수 있나?
-    #candidates = Knowledge_Candidate.objects.order_by('-subject').all()
-    print subject_count
-    
-    # 시도 2. 없으면 노가다 
-    '''
-    for key in subject_count:
-       print key, str(subject_count[key])
-        count = unicode(subject_count[key],'utf-8')
-        print key, count
-        st = SubTask(key, count)
-        print 'here'
-        try:
-            st.save() 
-        except Exception as e:
-            print "WHAT THE"
-            print str(e)
-          
-          
-      
-        kc = Knowledge_Candidate(subject=subject,
-                 user_id='1',
-                 object=object_,
-                 predicate=predicate,
-                 subject_desc=subject_desc,
-                 object_desc=object_desc,
-                 predicate_desc=''
-                 )
-        print 'here2'
-        try:
-            kc.save() 
-        except Exception as e:
-            print "WHAT THE"
-            print str(e)
-            
-        print 'here3'
-        row_list =[]
-        row_list.append(subject)
-        row_list.append(object)
-        row_list.append(predicate)
-        row_list.append(subject_desc)
-        row_list.append(object_desc)
-        rows_list.append(row_list)
-        print row_list
-        print rows_list
-        row_dict ={}
-        row_dict['subject']=subject
-         rows_list.append(row_dict)
-    rows_list_length = len(rows_list)
-'''
-    
-    #4 subject별로 정리된 데이터를 SubTask(model)라고 하고 그것들을 생성, 저장
-    
-    for key in subject_count:
-        count = '\'numbers: '+str(subject_count[key]) +'\''
-        
-        print key, count
-        r = SubTask(key,count)
-        try:
-            r.save() 
-        except Exception as e:
-            print str(e)
-    
-    
+ 
+    subject_count_sorted= sorted(subject_count.iteritems(), key=operator.itemgetter(0))    
+    sujbect_count_json = json.dumps(subject_count_sorted)
 
-    #5 subtask (지식)들을 client로 넘겨준다
-    candidates = SubTask.objects.order_by('-taskname').all()
-
-    #print len(candidates)
 
     try:
         resp = {
-            '''
-            이 내용들이 task.html 에게 넘겨줘야 할 사항들
-            '''
             'selected_group' : selected_group,      #선택한 그룹
-            'candidates' : subject_count,
-            #'candidates' : serialize(candidates),   #검증해야할 subtask의 지식들
-            
-            '''
-            지금은 이 내용들이 task.html에게 넘어가고 있음
-            '''
-            'candidates1' : '박정희',
-            'candidates1_c' : '5',
-            'candidates2' : '안창호',
-            'candidates2_c' : '4',
+            'candidates' : sujbect_count_json,
             'mine' : '0',
             'total': '100'            
         }
