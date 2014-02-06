@@ -281,10 +281,12 @@ def validation_view(request):
     print 'validation_view'
     
     #1. subtask에서 선택한 지식들의 첫번째 id를 받아와야함
-    candidateid = request.GET.get('id', '')
-    print candidateid
+    selected = request.GET.get('selected', '')
+    selected_list = selected.split(':')
     
-    #2. id에 해당하는 지식 triple을 가져옴
+    
+    #2. id에 해당하는 지식 triple을 가져옴 db에서 가져오면 됨....
+    
     
 #    triple = Knowledge_Candidate.objects.get(id=candidateid)
 #   print triple.subject,triple.object, triple.predicate

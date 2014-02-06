@@ -110,23 +110,14 @@ var doGetSubtask = function() {
 			
 		},
 		success : function(data) {
-			
-			console.log("data");
-			console.log(data);
-			console.log(data["total"]);
-			console.log(data["candidates"]);
-			
+						
 			console.log("parsed!!!");
 			object2 = JSON.parse(data["candidates"]);
-			console.log(object2);
-			console.log("-=---");
-			
+
 			$('.selected_group', node).append(data.subject);
 
 			for (var i in object2) {
-
 				doAppendSubTaskCandidate(i, object2[i]);
-				
 			}
 			
 			$(".selected_group").html(data.selected_group);
@@ -147,15 +138,7 @@ var doClearSubTask = function() {
 	$('#candidatearea').html('');
 };
 
-var doSelect = function(e) {
-	//input box
-	console.log($(this).get(0));
-	console.log($(this).get(0).parent.text());
-	console.log($(this).parent.parent.text());
-	console.log($(this).parent.parent.value());
-	
-	
-};
+
 var doAppendSubTaskCandidate = function(i, data2) {
 
 	node = $('#candidateTemplate').clone();
@@ -213,24 +196,20 @@ var doCompleteValidation = function() {
 var doGetValidation = function(evt, a) {
 	
 	//subtask.html에서 user가 선택한 버튼의 id를 읽어와서 그 id에 해당하는 지식을 서버에서 가져와야함
-	var triple = $(this).parent().text();
-	var id = $(this).val();
-	console.log("ididididid")
-	console.log($(this));
-	console.log(id);
-	console.log(evt);
-	console.log(a);
-	console.log($("input[type=checkbox]").length);
-	checkbox = $("input[type=checkbox]")
-	for (var v2 in checkbox) {
-		console.log(checkbox[v2]);
-	}
+	var checkbox = $("#candidatearea input:checked")
+	var selected='';
+	for (var v in checkbox) {
+		selected = selected + checkbox[v]["value"] + ':'
+		//selected.push(checkbox[v]["value"]);
+	}	
+	console.log(selected);
+	var selected_JSON= JSON.stringify(selected);
 	
 	$.ajax({
 		type : 'get',
 		url : baseUrl + 'api/validation/',
 		data : {
-			id : id
+			selected : selected_JSON
 		},
 		beforeSend : function(req) {
 			req.setRequestHeader('Authorization', loginstring);
